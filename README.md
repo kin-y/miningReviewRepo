@@ -5,7 +5,7 @@ We are researching the code review process in open source software projects, and
 
 Visit our research pages [here](http://kin-y.github.io/miningReviewRepo/).
 
-Our group is
+Our Current Research Group is
 - [Xin Yang](http://www.nemocap.org/) (PhD student, Nara Institute of Science and Technology, Japan)
 - [Raula Gaikovina Kula](http://sel.ist.osaka-u.ac.jp/people/raula-k/) (assistant professor, Osaka University, Japan)
 - [Norihiro Yoshida](https://sites.google.com/site/yoshidaatnu/) (associate professor, Nagoya University, Japan)
