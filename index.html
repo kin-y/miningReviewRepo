@@ -21,15 +21,12 @@
       <h1>
 <a id="what-is-this" class="anchor" href="#what-is-this" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>What is this?</h1>
 
-<p>This is the Gerrit code review datasets as part of the MSR 2016 data track paper "<a href="http://sdlab.naist.jp/pman3/pman3.cgi?DOWNLOAD=157" target="_blank">Mining the Modern Code Review Repositories: A Dataset of People, Process and Product"</a>. We extracted all the dataset from Gerrit server using our mining scripts which based on the official REST API. The data is stored as in relational database (MySQL) format.</p>
+<p>This is the Gerrit code review datasets as part of the MSR 2016 data track paper "<a href="http://sdlab.naist.jp/pman3/pman3.cgi?DOWNLOAD=158" target="_blank">Mining the Modern Code Review Repositories: A Dataset of People, Process and Product"</a>. We extracted all the dataset from Gerrit server using our mining scripts which based on the official REST API. The data is stored as in relational database (MySQL) format.</p>
 
 <h1>
 <a id="target-projects" class="anchor" href="#target-projects" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Target Projects</h1>
 
 <p>We exported the database objects to self-contained files for each project. All .sql files are available here:</br>
-</br>
-Notice: we have hashed the names and email of developers to protect the privacy of developers. if you need the mailing list of developers for legal usages such as research survey or interview, please contact us.</p>
-
 <ul>
 <li>OpenStack : <a href="http://sdlab.naist.jp/members/kin-y/gerritdata/openstack.rar">rar</a>, <a href="http://sdlab.naist.jp/members/kin-y/gerritdata/openstack.7z">7z</a>, last updated 2015/04/25</li>
 <li>LibreOffice : <a href="http://sdlab.naist.jp/members/kin-y/gerritdata/libreoffice.rar">rar</a>, <a href="http://sdlab.naist.jp/members/kin-y/gerritdata/libreoffice.7z">7z</a>, last updated 2015/05/30</li>
@@ -39,11 +36,19 @@ Notice: we have hashed the names and email of developers to protect the privacy 
 <li>All Projects : <a href="http://sdlab.naist.jp/members/kin-y/gerritdata/allDataSets.rar">rar</a>, <a href="http://sdlab.naist.jp/members/kin-y/gerritdata/allDataSets.7z">7z</a>.</li>
 </ul>
 
-<br>
 If you want to use this dataset in a publication, please cite the following paper. <br>
 <blockquote>
-Xin Yang, Raula Gaikovina Kula, Norihiro Yoshida, and Hajimu Iida, "Mining the Modern Code Review Repositories: A Dataset of People, Process and Product", In the 13th International Conference on Mining Software Repositories (MSR 2016), to appear, 2016.
+@InProceedings{Yang2016MSR,<br>
+&nbsp;&nbsp;Author         = {Yang, Xin and Kula, Raula Gaikovina and Yoshida, Norihiro and Iida, Hajimu},<br>
+&nbsp;&nbsp;Title          = {Mining the Modern Code Review Repositories: A Dataset of People, Process and Product},<br>
+&nbsp;&nbsp;BookTitle      = {Proceedings of the 13th International Conference on Mining Software Repositories},<br>
+&nbsp;&nbsp;Pages          = {460--463},<br>
+&nbsp;&nbsp;Year           = {2016}<br>
+}<br>
 </blockquote>
+
+</br>
+Notice: To protect the privacy of developers, we have anonymized all the usernames and email address of developers.</p>
 
 <h1>
 <a id="documentation" class="anchor" href="#documentation" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Documentation</h1>
@@ -76,7 +81,7 @@ and how to <a href="https://github.com/kin-y/miningReviewRepo/wiki/Query">query<
 <h1>
 <a id="contacts" class="anchor" href="#contacts" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Contacts</h1>
 
-<p>If you have any questions, please contact us (kin-y[at]is.naist.jp).</p>
+<p>If you have any questions, please contact us (kin-y [at] is.naist.jp).</p>
 
       <footer class="site-footer">
 	<a rel="license" href="http://creativecommons.org/licenses/by/4.0/"><img alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by/4.0/88x31.png" /></a><br />This <span xmlns:dct="http://purl.org/dc/terms/" href="http://purl.org/dc/dcmitype/Dataset" rel="dct:type">work</span> is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by/4.0/">Creative Commons Attribution 4.0 International License</a>.
