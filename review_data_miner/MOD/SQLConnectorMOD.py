@@ -5,7 +5,7 @@ from objectsMOD import *
 This class is created for connect to MySQL database, initialize the database and operates the database.
 """
 class MysqlDBConnector:
-        def __init__(self, host, user, password, dbName):
+        def __init__(self, host, user, password, dbName, hasDB, status):
                 self.config = {
                         'host': host,
                         'user': user,
@@ -13,9 +13,13 @@ class MysqlDBConnector:
                         'charset': 'utf8'
                         }
                 self.dbName = dbName
+                self.status = status
                 self.db = mysql.connector.connect(**self.config)
                 self.cursor = self.db.cursor()
-                self.initDatabase(dbName)
+                if hasDB == 'n' or hasDB == 'no':
+                        self.initDatabase(dbName)
+                else:
+                        self.cursor.execute('USE %s' %dbName)
         
         """
         Create database and tables.
@@ -38,11 +42,15 @@ class MysqlDBConnector:
                         " id INT(11) PRIMARY KEY NOT NULL AUTO_INCREMENT,"
                         " ch_id varchar(256) DEFAULT NULL,"
                         " ch_changeId VARCHAR(64) DEFAULT NULL,"
+			" ch_changeIdNum INT(11) DEFAULT NULL,"
                         " ch_project VARCHAR(128) DEFAULT NULL,"
                         " ch_branch VARCHAR(128) DEFAULT NULL,"
-                        " ch_authorId VARCHAR(16) DEFAULT NULL,"
+                        " ch_topic VARCHAR(128) DEFAULT NULL,"
+                        " ch_authorAccountId VARCHAR(16) DEFAULT NULL,"
                         " ch_createdTime DATETIME DEFAULT NULL,"
-                        " ch_status VARCHAR(16) DEFAULT NULL"
+			" ch_updatedTime DATETIME DEFAULT NULL,"
+                        " ch_status VARCHAR(16) DEFAULT NULL,"
+                        " ch_mergeable VARCHAR(16) DEFAULT NULL"
                         ") ENGINE=InnoDB DEFAULT CHARSET=utf8"
                         )
                 # t_revision table
@@ -52,10 +60,15 @@ class MysqlDBConnector:
                         " rev_id varchar(64) DEFAULT NULL,"
                         " rev_subject LONGTEXT DEFAULT NULL,"
                         " rev_message LONGTEXT DEFAULT NULL,"
-                        " rev_authorName VARCHAR(64) DEFAULT NULL,"
+                        " rev_authorUsername VARCHAR(64) DEFAULT NULL,"
                         " rev_createdTime DATETIME DEFAULT NULL,"
-                        " rev_committerName VARCHAR(64) DEFAULT NULL,"
+                        " rev_committerUsername VARCHAR(64) DEFAULT NULL,"
                         " rev_committedTime DATETIME DEFAULT NULL,"
+                        " rev_ref VARCHAR(256) DEFAULT NULL,"
+                        " rev_git VARCHAR(256) DEFAULT NULL,"
+                        " rev_repo VARCHAR(256) DEFAULT NULL,"
+                        " rev_http VARCHAR(256) DEFAULT NULL,"
+                        " rev_ssh VARCHAR(256) DEFAULT NULL,"
                         " rev_patchSetNum INT(11) DEFAULT NULL,"
                         " rev_changeId INT(11) DEFAULT NULL"
                         ") ENGINE=InnoDB DEFAULT CHARSET=utf8"
@@ -66,7 +79,7 @@ class MysqlDBConnector:
                         " id INT(11) PRIMARY KEY NOT NULL AUTO_INCREMENT,"
                         " hist_id VARCHAR(64) DEFAULT NULL,"
                         " hist_message LONGTEXT DEFAULT NULL,"
-                        " hist_authorId VARCHAR(16) DEFAULT NULL,"
+                        " hist_authorAccountId VARCHAR(16) DEFAULT NULL,"
                         " hist_createdTime DATETIME DEFAULT NULL,"
                         " hist_patchSetNum INT(11) DEFAULT NULL,"
                         " hist_changeId INT(11) DEFAULT NULL,"
@@ -88,10 +101,10 @@ class MysqlDBConnector:
                 TABLES ['t_people'] = (
                         "CREATE TABLE t_people ("
                         " id INT(11) PRIMARY KEY NOT NULL AUTO_INCREMENT,"
-                        " p_authorId VARCHAR(16) DEFAULT NULL,"
-                        " p_authorName VARCHAR(64) DEFAULT NULL,"
+                        " p_accountId VARCHAR(16) DEFAULT NULL,"
+                        " p_name VARCHAR(64) DEFAULT NULL,"
                         " p_email VARCHAR(64) DEFAULT NULL,"
-                        " p_domain VARCHAR(64) DEFAULT NULL"
+                        " p_userName VARCHAR(64) DEFAULT NULL"
                         ") ENGINE=InnoDB DEFAULT CHARSET=utf8"
                         )
 
@@ -107,8 +120,8 @@ class MysqlDBConnector:
                         if self.ifExistsChange(change):
                                 continue
                         else:
-                                sql = 'insert into t_change(ch_id, ch_changeId, ch_project, ch_branch, ch_authorId, ch_createdTime, ch_status) values(%s, %s, %s, %s, %s, %s, %s)'
-                                data = (change.uniqueChangeId, change.changeId, change.project, change.branch, change.authorId, change.createdTime, change.status)
+                                sql = 'insert into t_change(ch_id, ch_changeId, ch_changeIdNum, ch_project, ch_branch, ch_topic, ch_authorAccountId, ch_createdTime, ch_updatedTime, ch_status, ch_mergeable) values(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'
+                                data = (change.uniqueChangeId, change.changeId, change.changeIdNum, change.project, change.branch, change.topic, change.authorAccountId, change.createdTime, change.updatedTime, change.status, change.mergeable)
                                 self.cursor.execute(sql, data)
                                 self.db.commit()
                                 # Get the primary key id (It was auto incremented.).
@@ -123,8 +136,13 @@ class MysqlDBConnector:
         """
         def saveRevisions(self, change):
                 for revision in change.revisions:
-                        sql = 'insert into t_revision(rev_id, rev_subject, rev_message, rev_authorName, rev_createdTime, rev_committerName, rev_committedTime, rev_patchSetNum, rev_changeId) values(%s, %s, %s, %s, %s, %s, %s, %s, %s)'
-                        data = (revision.revisionId, revision.subject, revision.message, revision.authorName, revision.createdTime, revision.committerName, revision.committedTime, revision.patchSetNum, change.id)
+                        sql = 'insert into t_revision(rev_id, rev_subject, rev_message, rev_authorUsername, '\
+                              'rev_createdTime, rev_committerUsername, rev_committedTime, rev_ref, rev_git, rev_repo, '\
+                              'rev_http, rev_ssh, rev_patchSetNum, rev_changeId) '\
+                              'values(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'
+                        data = (revision.revisionId, revision.subject, revision.message, revision.authorUsername,
+                                revision.createdTime, revision.committerUsername, revision.committedTime, revision.ref,
+                                revision.git, revision.repo, revision.http, revision.ssh, revision.patchSetNum, change.id)
                         self.cursor.execute(sql, data)
                         self.db.commit()
                         # Get the primary key id (It was auto incremented.).
@@ -153,29 +171,22 @@ class MysqlDBConnector:
         This function save histories data to database.
         """
         def saveHistories(self, change):
-                sql = 'insert into t_history(hist_id, hist_message, hist_authorId, hist_createdTime, hist_patchSetNum, hist_changeId) values(%s, %s, %s, %s, %s, %s)'
                 for history in change.histories:
-                        try:
-                                data = (history.historyId, history.message, history.authorId, history.createdTime, history.patchSetNum, change.id)
-                                self.cursor.execute(sql, data)
-                                self.db.commit()
-                                self.savePeople(history);
-                        except:
-                                self.db = mysql.connector.connect(**self.config)
-                                self.db.cmd_init_db(self.dbName)
-                                self.cursor = self.db.cursor()
-
-
+                        sql = 'insert into t_history(hist_id, hist_message, hist_authorAccountId, hist_createdTime, hist_patchSetNum, hist_changeId) values(%s, %s, %s, %s, %s, %s)'
+                        data = (history.historyId, history.message, history.authorAccountId, history.createdTime, history.patchSetNum, change.id)
+                        self.cursor.execute(sql, data)
+                        self.db.commit()
+                        self.savePeople(history);
+                        
         def savePeople(self, history):
-                sql = 'insert into t_people(p_authorId, p_authorName, p_email, p_domain) values(%s, %s, %s, %s)'
-                if self.ifExistsPeople(history) == False and history.authorId != '':
-                        domain = history.email.split('@')[1] if history.email != '' else ''
-                        data = (history.authorId, history.authorName, history.email, domain)
+                sql = 'insert into t_people(p_accountId, p_name, p_email, p_userName) values(%s, %s, %s, %s)'
+                if self.ifExistsPeople(history.authorAccountId) == False and history.authorAccountId != '':
+                        data = (history.authorAccountId, history.authorName, history.email, history.authorUserName)
                         self.cursor.execute(sql, data)
                         self.db.commit()
 
-        def ifExistsPeople(self, history):
-                sql = 'select p_authorId from t_people where p_authorId="%s"' %history.authorId
+        def ifExistsPeople(self, id):
+                sql = 'select p_accountId from t_people where p_accountId="%s"' %id
                 self.cursor.execute(sql)
                 result = self.cursor.fetchall()
                 if len(result)>0:
@@ -218,8 +229,25 @@ class MysqlDBConnector:
                 histories = []
                 for r in result:
                         history = History()
-                        history.authorId = r[0]
+                        history.authorAccountId = r[0]
                         history.createdTime = r[1][0:10]
                         history.message = r[2]
                         histories.append(history)
                 return histories
+        
+        def getStartPoint(self):
+                clause = ''
+                if self.status == 'open':
+                        clause = 'NEW'
+                elif self.status == 'merged':
+                        clause = 'MERGED'
+                elif self.status == 'abandoned':
+                        clause = 'ABANDONED'
+                else:
+                        print("SQL: status error")
+                        raise
+                sql = 'SELECT count(*) FROM %s.t_change where ch_status = "%s"' %(self.dbName, clause)
+                print(sql)
+                self.cursor.execute(sql)
+                result = self.cursor.fetchone()
+                return result[0]

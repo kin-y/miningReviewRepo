@@ -1,44 +1,45 @@
 import sys
+import json
 sys.path.append('MOD')
-from changesUtilMOD import *
-from notify import *
+from utilMOD import *
 
-# host
-# e.g., '127.0.0.1'
-host = HOSTNAME 
-# mysql user name
-# e.g. 'root'
-user = MYSQL_USER_NAME
-# mysql password
-password = MYSQL_PWD
+with open('config.json', 'r') as f:
+    config = json.load(f)
 
-# get project name (e.g., aosp, qt, openstack)
-project = raw_input("Project name: ")
-# if you need to receive a notification email to you email
-toaddr = YOUR_EMAIL
+if config:
+    host = config['host']
+    user = config['user']
+    password = config['password']
+    dbName = config['db_name']
+    hasDB = config['has_db']
+    statusList = config['status_list']
+    currentStatus = config['current_status']
+else:
+    print("config file not exist")
+    raise
 
-dbNames = []
-if project == 'aosp':
-    dbNames.append('gm_aosp')
-elif project == 'qt':
-    dbNames.append('gm_qt')
-elif project == 'openstack':
-    dbNames.append('gm_openstack')
-elif project == 'eclipse':
-    dbNames.append('gm_eclipse')
-elif project == 'libreoffice':
-    dbNames.append('gm_libreoffice')
-elif project == 'gerrithub':
-    dbNames.append('gm_gerrithub')
-#elif project == 'all':
-#    dbNames.append('gm_aosp')
-#    dbNames.append('gm_qt')
-#    dbNames.append('gm_openstack')
+"""
+Database list so far:
 
-# get changes
-subject = "failed"
-try:
-    ChangesUtil(host, user, password, dbNames)
-    subject = "succeeded"
-finally:
-    Notify(toaddr, subject)
+gm_aosp (some problems)
+gm_qt (official API problem)
+gm_openstack
+gm_eclipse
+gm_libreoffice
+gm_gerrithub
+
+"""
+
+statuses = []
+    
+for s in statusList:
+    if currentStatus == s['status'] or len(statuses) != 0:
+        statuses.append(s['status'])
+
+for status in statuses:
+    config['current_status'] = status
+    config['has_db'] = 'y'
+    with open('config.json', 'w') as f:
+        json.dump(config, f)
+    
+    Util(host, user, password, dbName, hasDB, status)

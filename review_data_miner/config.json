@@ -1,0 +1,14 @@
+{
+    "has_db": "n",
+    "current_status": "open",
+    "host": "YOUR_HOST",
+    "db_name": "DATABASE_NAME",
+    "user": "DATABASE_USERNAME",
+    "password": "DATABASE_PASSWORD",
+    "status_list":
+    [
+	{"status": "open"},
+	{"status": "merged"},
+	{"status": "abandoned"}
+    ]
+}

@@ -3,10 +3,14 @@ from objectsMOD import *
 
 class ChangeUtil:
 
-        def __init__(self, host, user, password, dbName):
+        def __init__(self, host, user, password, dbName, hasDB, status):
                 # For create database and tables and save datas to database.
-                self.sqlConnector = MysqlDBConnector(host, user, password, dbName)
-                
+                self.sqlConnector = MysqlDBConnector(host, user, password, dbName, hasDB, status)
+
+        def getStart(self):
+                startpoint = self.sqlConnector.getStartPoint()
+                return startpoint
+
         """
         This function converts json string to object classes.
         And save object classes to database.
@@ -27,17 +31,34 @@ class ChangeUtil:
                         changeObj = Change()
                         changeObj.uniqueChangeId = change['id']
                         changeObj.changeId = change['change_id']
+			# change id number
+			changeObj.changeIdNum = change['_number']
                         changeObj.project = change['project']
                         changeObj.branch = change['branch']
+			# topic
+                        if 'topic' in change.keys():
+                                changeObj.topic = change['topic']
+                        else:
+                                changeObj.topic = ''
                         # Some data has no owner information.
                         # If there was no owner information, set the authorId as ''.
                         if not change['owner']:
-                                changeObj.authorId = ''
+                                changeObj.authorAccountId = ''
                         # If there has owner infromation, set the authorId as the author's id.
                         else:
-                                changeObj.authorId = change['owner']['_account_id']
+                                changeObj.authorAccountId = change['owner']['_account_id']
                         changeObj.createdTime = change['created']
-                        changeObj.status = change['status']
+			# updatedTime
+                        if 'updated' in change.keys():
+                                changeObj.updatedTime = change['updated']
+                        else:
+                                changeObj.updatedTime = ''
+			changeObj.status = change['status']
+                        # mergeable
+                        if 'mergeable' in change.keys():
+                                changeObj.mergeable = change['mergeable']
+                        else:
+                                changeObj.mergeable = ''
                         # Get a list of Revision objects.
                         changeObj.revisions = self.convertRevisions(change)
                         # Get a list of History objects.
@@ -57,11 +78,31 @@ class ChangeUtil:
                         if 'commit' in revision.keys():
                                 revisionObj.subject = revision['commit']['subject']
                                 revisionObj.message = revision['commit']['message']
-                                revisionObj.authorName = revision['commit']['author']['name']
+                                revisionObj.authorUsername = revision['commit']['author']['name']
                                 revisionObj.createdTime = revision['commit']['author']['date']
-                                revisionObj.committerName = revision['commit']['committer']['name']
+                                revisionObj.committerUsername = revision['commit']['committer']['name']
                                 revisionObj.committedTime = revision['commit']['committer']['date']
-                        revisionObj.patchSetNum = revision['_number']
+                                revisionObj.patchSetNum = revision['_number']
+                                revisionObj.ref = revision['ref']
+                        if 'fetch' in revision.keys():
+                                if 'git' in revision['fetch'].keys():
+                                        revisionObj.git = revision['fetch']['git']['url']
+                                else:
+                                        revisionObj.git = ''
+                                if 'repo' in revision['fetch'].keys():
+                                        revisionObj.repo = revision['fetch']['repo']['url']
+                                else:
+                                        revisionObj.repo = ''
+                                if 'anonymous http' in revision['fetch'].keys():
+                                        revisionObj.http = revision['fetch']['anonymous http']['url']
+                                elif 'http' in revision['fetch'].keys():
+                                        revisionObj.http = revision['fetch']['http']['url']
+                                else:
+                                        revisionObj.http = ''
+                                if 'ssh' in revision['fetch'].keys():
+                                        revisionObj.ssh = revision['fetch']['ssh']['url']
+                                else:
+                                        revisionObj.ssh = ''
                         if 'files' in revision.keys():
                                 revisionObj.files = self.convertFiles(revision)
                         # Get a list of File objects.
@@ -101,13 +142,16 @@ class ChangeUtil:
                         # And in the datas have the 'author' key, some have an empty value, and some have values.
                         # So it should be checked.
                         if ('author' not in message.keys()) or (not message['author']):
-                                historyObj.authorId = ''
-                                historyObj.authorName = ''
+                                historyObj.authorAccountId = ''
+				historyObj.authorName = ''
+                                historyObj.authorUserName = ''
                                 historyObj.email = ''
                         else:
-                                historyObj.authorId = message['author']['_account_id']
+                                historyObj.authorAccountId = message['author']['_account_id']
                                 if 'name' in message['author'].keys():
                                         historyObj.authorName = message['author']['name']
+                                if 'username' in message['author'].keys():
+                                        historyObj.authorUserName = message['author']['username']
                                 if 'email' in message['author'].keys():
                                         historyObj.email = message['author']['email']
                                 

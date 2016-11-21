@@ -35,8 +35,9 @@ This class corresponds to t_history table in the database.
 class History:
         id = None
         historyId = None
-        authorId = None
+        authorAccountId = None
         authorName = None
+        authorUserName = None
         email = None
         message = None
         createdTime = None
@@ -58,6 +59,7 @@ This class corresponds to t_people table in the database.
 """
 class People:
         id = None
-        authorId = None
+        authorAccountId = None
         authorName = None
         email = None
+        authorUserName = None
