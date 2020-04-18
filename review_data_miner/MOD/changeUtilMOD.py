@@ -31,11 +31,11 @@ class ChangeUtil:
                         changeObj = Change()
                         changeObj.uniqueChangeId = change['id']
                         changeObj.changeId = change['change_id']
-			# change id number
-			changeObj.changeIdNum = change['_number']
+                        # change id number
+                        changeObj.changeIdNum = change['_number']
                         changeObj.project = change['project']
                         changeObj.branch = change['branch']
-			# topic
+                        # topic
                         if 'topic' in change.keys():
                                 changeObj.topic = change['topic']
                         else:
@@ -48,12 +48,12 @@ class ChangeUtil:
                         else:
                                 changeObj.authorAccountId = change['owner']['_account_id']
                         changeObj.createdTime = change['created']
-			# updatedTime
+                        # updatedTime
                         if 'updated' in change.keys():
                                 changeObj.updatedTime = change['updated']
                         else:
                                 changeObj.updatedTime = ''
-			changeObj.status = change['status']
+                        changeObj.status = change['status']
                         # mergeable
                         if 'mergeable' in change.keys():
                                 changeObj.mergeable = change['mergeable']
@@ -72,7 +72,7 @@ class ChangeUtil:
         def convertRevisions(self, change):
                 revisionList = []
                 revisionsJson = change['revisions']
-                for key, revision in revisionsJson.iteritems():
+                for key, revision in revisionsJson.items():
                         revisionObj = Revision()
                         revisionObj.revisionId = key
                         if 'commit' in revision.keys():
@@ -115,7 +115,7 @@ class ChangeUtil:
         def convertFiles(self, revision):
                 fileList = []
                 fileJson = revision['files']
-                for fileName, fileInfo in fileJson.iteritems():
+                for fileName, fileInfo in fileJson.items():
                         fileObj = File()
                         fileObj.fileName = fileName
                         # Some data has 'lines_inserted' key, but some data did not have.
@@ -143,7 +143,7 @@ class ChangeUtil:
                         # So it should be checked.
                         if ('author' not in message.keys()) or (not message['author']):
                                 historyObj.authorAccountId = ''
-				historyObj.authorName = ''
+                                historyObj.authorName = ''
                                 historyObj.authorUserName = ''
                                 historyObj.email = ''
                         else:

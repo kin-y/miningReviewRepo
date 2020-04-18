@@ -10,7 +10,7 @@ class MysqlDBConnector:
                         'host': host,
                         'user': user,
                         'password': password,
-                        'charset': 'utf8'
+                        'charset': 'utf8mb4'
                         }
                 self.dbName = dbName
                 self.status = status
@@ -40,75 +40,75 @@ class MysqlDBConnector:
                 TABLES ['t_change'] = (
                         "CREATE TABLE t_change ("
                         " id INT(11) PRIMARY KEY NOT NULL AUTO_INCREMENT,"
-                        " ch_id varchar(256) DEFAULT NULL,"
-                        " ch_changeId VARCHAR(64) DEFAULT NULL,"
+                        " ch_id varchar(512) DEFAULT NULL,"
+                        " ch_changeId VARCHAR(128) DEFAULT NULL,"
 			" ch_changeIdNum INT(11) DEFAULT NULL,"
-                        " ch_project VARCHAR(128) DEFAULT NULL,"
-                        " ch_branch VARCHAR(128) DEFAULT NULL,"
-                        " ch_topic VARCHAR(128) DEFAULT NULL,"
-                        " ch_authorAccountId VARCHAR(16) DEFAULT NULL,"
+                        " ch_project VARCHAR(256) DEFAULT NULL,"
+                        " ch_branch VARCHAR(256) DEFAULT NULL,"
+                        " ch_topic VARCHAR(256) DEFAULT NULL,"
+                        " ch_authorAccountId VARCHAR(32) DEFAULT NULL,"
                         " ch_createdTime DATETIME DEFAULT NULL,"
 			" ch_updatedTime DATETIME DEFAULT NULL,"
-                        " ch_status VARCHAR(16) DEFAULT NULL,"
-                        " ch_mergeable VARCHAR(16) DEFAULT NULL"
-                        ") ENGINE=InnoDB DEFAULT CHARSET=utf8"
+                        " ch_status VARCHAR(32) DEFAULT NULL,"
+                        " ch_mergeable VARCHAR(32) DEFAULT NULL"
+                        ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4"
                         )
                 # t_revision table
                 TABLES ['t_revision'] = (
                         "CREATE TABLE t_revision ("
                         " id INT(11) PRIMARY KEY NOT NULL AUTO_INCREMENT,"
-                        " rev_id varchar(64) DEFAULT NULL,"
+                        " rev_id varchar(128) DEFAULT NULL,"
                         " rev_subject LONGTEXT DEFAULT NULL,"
                         " rev_message LONGTEXT DEFAULT NULL,"
-                        " rev_authorUsername VARCHAR(64) DEFAULT NULL,"
+                        " rev_authorUsername VARCHAR(128) DEFAULT NULL,"
                         " rev_createdTime DATETIME DEFAULT NULL,"
-                        " rev_committerUsername VARCHAR(64) DEFAULT NULL,"
+                        " rev_committerUsername VARCHAR(128) DEFAULT NULL,"
                         " rev_committedTime DATETIME DEFAULT NULL,"
-                        " rev_ref VARCHAR(256) DEFAULT NULL,"
-                        " rev_git VARCHAR(256) DEFAULT NULL,"
-                        " rev_repo VARCHAR(256) DEFAULT NULL,"
-                        " rev_http VARCHAR(256) DEFAULT NULL,"
-                        " rev_ssh VARCHAR(256) DEFAULT NULL,"
+                        " rev_ref VARCHAR(512) DEFAULT NULL,"
+                        " rev_git VARCHAR(512) DEFAULT NULL,"
+                        " rev_repo VARCHAR(512) DEFAULT NULL,"
+                        " rev_http VARCHAR(512) DEFAULT NULL,"
+                        " rev_ssh VARCHAR(512) DEFAULT NULL,"
                         " rev_patchSetNum INT(11) DEFAULT NULL,"
                         " rev_changeId INT(11) DEFAULT NULL"
-                        ") ENGINE=InnoDB DEFAULT CHARSET=utf8"
+                        ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4"
                         )
                 # t_history table
                 TABLES ['t_history'] = (
                         "CREATE TABLE t_history ("
                         " id INT(11) PRIMARY KEY NOT NULL AUTO_INCREMENT,"
-                        " hist_id VARCHAR(64) DEFAULT NULL,"
+                        " hist_id VARCHAR(128) DEFAULT NULL,"
                         " hist_message LONGTEXT DEFAULT NULL,"
-                        " hist_authorAccountId VARCHAR(16) DEFAULT NULL,"
+                        " hist_authorAccountId VARCHAR(32) DEFAULT NULL,"
                         " hist_createdTime DATETIME DEFAULT NULL,"
                         " hist_patchSetNum INT(11) DEFAULT NULL,"
                         " hist_changeId INT(11) DEFAULT NULL,"
                         " INDEX(hist_changeId)"
-                        ") ENGINE=InnoDB DEFAULT CHARSET=utf8"
+                        ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4"
                         )
                 # t_file table
                 TABLES ['t_file'] = (
                         "CREATE TABLE t_file ("
                         " id INT(11) PRIMARY KEY NOT NULL AUTO_INCREMENT,"
-                        " f_fileName VARCHAR(512) DEFAULT NULL,"
+                        " f_fileName VARCHAR(1024) DEFAULT NULL,"
                         " f_linesInserted INT(11) DEFAULT NULL,"
                         " f_linesDeleted INT(11) DEFAULT NULL,"
                         " f_revisionId INT(11) DEFAULT NULL"
-                        ") ENGINE=InnoDB DEFAULT CHARSET=utf8"
+                        ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4"
                         )
 
                 # t_people table
                 TABLES ['t_people'] = (
                         "CREATE TABLE t_people ("
                         " id INT(11) PRIMARY KEY NOT NULL AUTO_INCREMENT,"
-                        " p_accountId VARCHAR(16) DEFAULT NULL,"
-                        " p_name VARCHAR(64) DEFAULT NULL,"
-                        " p_email VARCHAR(64) DEFAULT NULL,"
-                        " p_userName VARCHAR(64) DEFAULT NULL"
-                        ") ENGINE=InnoDB DEFAULT CHARSET=utf8"
+                        " p_accountId VARCHAR(32) DEFAULT NULL,"
+                        " p_name VARCHAR(128) DEFAULT NULL,"
+                        " p_email VARCHAR(128) DEFAULT NULL,"
+                        " p_userName VARCHAR(128) DEFAULT NULL"
+                        ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4"
                         )
 
-                for name, sql in TABLES.iteritems():
+                for name, sql in TABLES.items():
                         self.cursor.execute(sql)
 
         """

@@ -1,5 +1,5 @@
-import urllib
-import simplejson
+import urllib.request
+import json
 from changeUtilMOD import *
 import datetime
 
@@ -23,7 +23,7 @@ class Util(ChangeUtil):
             # self.statuses = ['open', 'merged', 'abandoned']
             self.url = 'https://review.openstack.org/changes/?o=ALL_REVISIONS&o=ALL_FILES&o=ALL_COMMITS&o=MESSAGES&o=DETAILED_ACCOUNTS&n=%s' %self.num
             self.getChangesUseS(dbName)
-	elif dbName == 'gm_eclipse':
+        elif dbName == 'gm_eclipse':
             self.span = 500
             # self.statuses = ['open', 'merged', 'abandoned']
             self.url = 'https://git.eclipse.org/r/changes/?o=ALL_REVISIONS&o=ALL_FILES&o=ALL_COMMITS&o=MESSAGES&o=DETAILED_ACCOUNTS&n=%s' %self.num
@@ -38,6 +38,11 @@ class Util(ChangeUtil):
             # self.statuses = ['open', 'merged', 'abandoned']
             self.url = 'https://review.gerrithub.io/changes/?o=ALL_REVISIONS&o=ALL_FILES&o=ALL_COMMITS&o=MESSAGES&o=DETAILED_ACCOUNTS&n=%s' %self.num
             self.getChangesUseS(dbName)
+        elif dbName == 'gm_chromium':
+            self.span = 100
+            # self.statuses = ['open', 'merged', 'abandoned']
+            self.url = 'https://chromium-review.googlesource.com/changes/?o=ALL_REVISIONS&o=ALL_FILES&o=ALL_COMMITS&o=MESSAGES&o=DETAILED_ACCOUNTS&n=%s' %self.num
+            self.getChangesUseS(dbName)
     """
     This function for Gerrit v2.9-2.11 REST API. use S parameter
     """
@@ -50,11 +55,11 @@ class Util(ChangeUtil):
             url = self.url + '&q=status:%s&S=%s' %(self.status, span)
             print('status: ' + self.status + ', from ' + str(span) + ' to ' + str(span + self.span))
             # The respond data looks like )]}'[...]
-            changeStr = urllib.urlopen(url).read()[4:]
+            changeStr = urllib.request.urlopen(url).read()[4:]
             try:
-                changeJson = simplejson.loads(changeStr)
-            except ValueError, e:
-                print e
+                changeJson = json.loads(changeStr)
+            except ValueError as e:
+                print (e)
             if len(changeJson) is 0:
                 isMore = False
             else:
@@ -75,9 +80,9 @@ class Util(ChangeUtil):
                 url = url + '&N=%s' %self.N
             changeStr = urllib.urlopen(url).read()[4:]
             try:
-                changeJson = simplejson.loads(changeStr)
-            except ValueError, e:
-                print e
+                changeJson = json.loads(changeStr)
+            except ValueError as e:
+                print (e)
             self.convertToBeans(changeJson)
             if len(changeJson) < 1:
                 isMore = False
